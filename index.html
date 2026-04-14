@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#08111f" />
+  <title>zumda</title>
+  <style>
+    :root{
+      --bg:#07101d; --bg2:#0d1830; --panel:#101c33; --line:rgba(255,255,255,.08);
+      --text:#f8fafc; --muted:#94a3b8; --accent1:#8fd7ff; --accent2:#8ae9bb; --danger:#fca5a5;
+      --shadow:0 24px 80px rgba(0,0,0,.38);
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{height:100%;margin:0}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(143,215,255,.13), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(138,233,187,.10), transparent 28%),
+        linear-gradient(180deg,var(--bg) 0%, var(--bg2) 100%);
+      overflow:hidden;
+    }
+    .shell{width:100%;height:100dvh;display:flex;justify-content:center;align-items:stretch}
+    .app{width:100%;max-width:430px;height:100dvh;position:relative;overflow:hidden;background:linear-gradient(180deg, rgba(8,17,31,.98), rgba(7,17,35,.98));border-left:1px solid var(--line);border-right:1px solid var(--line);box-shadow:var(--shadow)}
+    .screen{position:absolute;inset:0;padding:18px 18px calc(24px + env(safe-area-inset-bottom)) 18px;opacity:0;pointer-events:none;transform:translateX(18px);transition:opacity .22s ease, transform .22s ease;overflow-y:auto;-webkit-overflow-scrolling:touch}
+    .screen.active{opacity:1;pointer-events:auto;transform:translateX(0)}
+    .card-shell{min-height:calc(100dvh - 36px);margin-top:max(12px, env(safe-area-inset-top));background:linear-gradient(180deg, rgba(10,19,39,.98), rgba(7,16,32,.98));border:1px solid var(--line);border-radius:34px;padding:22px;box-shadow:inset 0 1px 0 rgba(255,255,255,.03);display:flex;flex-direction:column;gap:16px}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:800;font-size:26px;margin-bottom:18px}
+    .logo{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent1),var(--accent2));color:#04111d;font-size:22px;font-weight:900}
+    .eyebrow{font-size:11px;color:var(--muted);letter-spacing:.16em;text-transform:uppercase;margin-bottom:8px}
+    h1,h2,p{margin:0}
+    h1{font-size:34px;line-height:1.05;letter-spacing:-.05em}
+    h2{font-size:28px;line-height:1.08;letter-spacing:-.04em}
+    p{color:var(--muted);line-height:1.62;font-size:14px}
+    .message,.panel{border-radius:26px;padding:18px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
+    .message strong{display:block;font-size:24px;line-height:1.16;letter-spacing:-.03em;margin-bottom:8px}
+    .section-title{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin-top:4px;margin-bottom:2px}
+    .stack{display:flex;flex-direction:column;gap:12px}
+    .option{width:100%;border:none;cursor:pointer;border-radius:24px;padding:18px;background:linear-gradient(90deg,var(--accent1),var(--accent2));border:1px solid rgba(255,255,255,.10);color:#07111f;text-align:left;box-shadow:0 10px 28px rgba(138,233,187,.10)}
+    .option:active,.primary:active,.ghost:active,.counter button:active,.icon-btn:active{transform:scale(.985)}
+    .badge{display:inline-block;padding:6px 10px;border-radius:999px;font-size:11px;color:rgba(7,17,31,.72);background:rgba(255,255,255,.35);border:1px solid rgba(255,255,255,.25);margin-bottom:10px}
+    .option-title{font-size:20px;font-weight:800;line-height:1.2;letter-spacing:-.02em;margin-bottom:7px}
+    .option-sub{font-size:13px;color:rgba(7,17,31,.74);line-height:1.55}
+    .nav{display:flex;align-items:center;gap:12px;margin-bottom:2px}
+    .icon-btn{width:44px;height:44px;border:none;cursor:pointer;border-radius:14px;background:rgba(255,255,255,.05);color:var(--text);border:1px solid var(--line);display:grid;place-items:center;font-size:18px;flex:0 0 auto}
+    .primary,.ghost{width:100%;border:none;cursor:pointer;border-radius:22px;padding:18px 16px;font-size:17px;font-weight:800;min-height:60px}
+    .primary{background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#07111f;box-shadow:0 10px 28px rgba(138,233,187,.08)}
+    .ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+    .actions{margin-top:auto;display:flex;flex-direction:column;gap:12px;padding-top:4px}
+    .map{height:210px;border-radius:20px;position:relative;overflow:hidden;background:linear-gradient(180deg, rgba(143,215,255,.08), rgba(138,233,187,.04)), #0c1730;border:1px solid rgba(255,255,255,.05)}
+    .map:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);background-size:28px 28px}
+    .route{position:absolute;left:18%;top:58%;width:50%;height:2px;border-top:2px dashed rgba(143,215,255,.65);transform:rotate(-24deg);transform-origin:left center}
+    .pin{position:absolute;width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid #0f172a;box-shadow:0 0 0 8px rgba(143,215,255,.10)}
+    .pin.user{left:18%;top:60%}.pin.helper{left:64%;top:28%}
+    .tag{position:absolute;padding:7px 10px;border-radius:12px;font-size:12px;background:rgba(10,18,36,.84);border:1px solid var(--line)}
+    .tag.user{left:12%;top:71%}.tag.helper{left:54%;top:18%}
+    .status{font-size:13px;color:#d7f7e6;margin-top:12px;display:none}.status.show{display:block}
+    .summary-item{padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06)} .summary-item:last-child{border-bottom:none}
+    .summary-item small{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+    .summary-item strong{font-size:18px;line-height:1.35}
+    .counter{display:flex;align-items:center;gap:12px;margin-top:4px}
+    .counter button{width:42px;height:42px;border:none;cursor:pointer;border-radius:14px;background:rgba(255,255,255,.06);color:var(--text);font-size:22px}
+    .counter-value{min-width:76px;text-align:center;font-size:17px;font-weight:800}
+    textarea{width:100%;min-height:92px;resize:none;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--text);padding:14px;font:inherit;outline:none}
+    .tiny-warning{font-size:12px;color:var(--danger);margin-top:6px}
+    .done{width:92px;height:92px;border-radius:50%;margin:4px auto 10px;display:grid;place-items:center;background:rgba(138,233,187,.12);border:1px solid rgba(138,233,187,.18);font-size:34px}
+    .center{text-align:center}
+    .hidden{display:none}
+    @media (min-width:431px){.app{border:1px solid var(--line);border-radius:30px;height:min(920px,100dvh)}.card-shell{min-height:calc(min(920px,100dvh) - 36px)}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="app">
+      <section class="screen active" id="screen-home">
+        <div class="card-shell">
+          <div class="brand"><div class="logo">z</div><div>zumda</div></div>
+          <div class="eyebrow">For travelers in Japan</div>
+          <h1>What do you need right now?</h1>
+          <div class="message">
+            <strong>Someone will come.</strong>
+            <p>Choose what feels closest to your situation.</p>
+          </div>
+
+          <div class="section-title">Deliver</div>
+          <div class="stack">
+            <button class="option" onclick="pick('halal_food')">
+              <div class="badge">Deliver</div>
+              <div class="option-title">I can’t find halal food</div>
+              <div class="option-sub">A Muslim helper will assist you</div>
+            </button>
+            <button class="option" onclick="pick('recovery_kit')">
+              <div class="badge">Deliver</div>
+              <div class="option-title">I need a recovery kit</div>
+              <div class="option-sub">We’ll bring something to help you feel better</div>
+            </button>
+          </div>
+
+          <div class="section-title">Someone comes</div>
+          <div class="stack">
+            <button class="option" onclick="pick('luggage_help')">
+              <div class="badge">Someone comes</div>
+              <div class="option-title">I can’t move with my luggage</div>
+              <div class="option-sub">We’ll come help nearby</div>
+            </button>
+            <button class="option" onclick="pick('talk_local')">
+              <div class="badge">Someone comes</div>
+              <div class="option-title">Talk with a local</div>
+              <div class="option-sub">A casual walk to try your Japanese in real life</div>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-detail">
+        <div class="card-shell">
+          <div class="nav">
+            <button class="icon-btn" onclick="go('screen-home')">←</button>
+            <div><div class="eyebrow">Request details</div><h2 id="detailTitle"></h2></div>
+          </div>
+          <div class="panel"><p id="detailDescription"></p></div>
+          <div class="actions">
+            <button class="primary" onclick="go('screen-location')">Continue</button>
+            <button class="ghost" onclick="go('screen-home')">Back</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-location">
+        <div class="card-shell">
+          <div class="nav">
+            <button class="icon-btn" onclick="go('screen-detail')">←</button>
+            <div><div class="eyebrow">Share your location</div><h2>Share your location</h2></div>
+          </div>
+          <div class="panel">
+            <p>We will come to your place.</p>
+            <p style="margin-top:8px;"><strong style="color:#e2e8f0;">Please use your hotel location.</strong></p>
+          </div>
+          <div class="panel">
+            <div class="map">
+              <div class="route"></div>
+              <div class="pin user"></div>
+              <div class="pin helper"></div>
+              <div class="tag user">You</div>
+              <div class="tag helper">Local helper</div>
+            </div>
+            <div class="status" id="locationStatus">Location shared</div>
+          </div>
+          <div class="actions">
+            <button class="primary" onclick="shareLocation()">Share current location</button>
+            <button class="primary" id="locationContinue" onclick="go('screen-confirm'); refreshConfirm();" disabled style="opacity:.45;">Continue</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-confirm">
+        <div class="card-shell">
+          <div class="nav">
+            <button class="icon-btn" onclick="go('screen-location')">←</button>
+            <div><div class="eyebrow">Final confirmation</div><h2>Check your request</h2></div>
+          </div>
+          <div class="panel">
+            <div class="summary-item"><small>Request</small><strong id="confirmRequest"></strong></div>
+            <div class="summary-item"><small>Category</small><strong id="confirmCategory"></strong></div>
+            <div class="summary-item"><small>Location</small><strong id="confirmLocation">Not shared yet</strong></div>
+            <div class="summary-item"><small>ETA</small><strong>~30 min</strong></div>
+            <div class="summary-item">
+              <small>How many people need help?</small>
+              <div class="counter">
+                <button onclick="changePeople(-1)">−</button>
+                <div class="counter-value" id="peopleCount">1</div>
+                <button onclick="changePeople(1)">+</button>
+              </div>
+            </div>
+          </div>
+          <div class="panel">
+            <small style="display:block;color:var(--muted);margin-bottom:8px;">Optional note</small>
+            <textarea id="noteInput" placeholder="Need something light"></textarea>
+            <div class="tiny-warning">This request cannot be cancelled once submitted</div>
+          </div>
+          <div class="actions"><button class="primary" onclick="submitOrder()">Request now</button></div>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-done">
+        <div class="card-shell">
+          <div class="center">
+            <div class="done">✓</div>
+            <div class="eyebrow">Confirmed</div>
+            <h1>Someone is on the way</h1>
+            <p>A local is coming to help you</p>
+          </div>
+          <div class="panel" style="margin-top:8px;">
+            <div class="summary-item"><small>Request</small><strong id="doneRequest"></strong></div>
+            <div class="summary-item"><small>People</small><strong id="donePeople"></strong></div>
+            <div class="summary-item hidden" id="doneNoteWrap"><small>Optional note</small><strong id="doneNote"></strong></div>
+          </div>
+          <div class="actions"><button class="primary" onclick="resetFlow()">Back to home</button></div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const requestData = {
+      halal_food: { title: "I can’t find halal food", description: "A Muslim helper will assist you", category: "Deliver" },
+      recovery_kit: { title: "I need a recovery kit", description: "We’ll bring something to help you feel better", category: "Deliver" },
+      luggage_help: { title: "I can’t move with my luggage", description: "We’ll come help nearby", category: "Someone comes" },
+      talk_local: { title: "Talk with a local", description: "A casual conversation in simple Japanese", category: "Someone comes" }
+    };
+
+    const state = { selectedRequest: null, latitude: null, longitude: null, people: 1, note: "" };
+
+    function go(id){
+      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+    }
+
+    function pick(key){
+      state.selectedRequest = key;
+      const d = requestData[key];
+      document.getElementById("detailTitle").textContent = d.title;
+      document.getElementById("detailDescription").textContent = d.description;
+      go("screen-detail");
+    }
+
+    function shareLocation(){
+      if (!navigator.geolocation) {
+        alert("Geolocation is not supported on this device.");
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          state.latitude = position.coords.latitude;
+          state.longitude = position.coords.longitude;
+          document.getElementById("locationStatus").classList.add("show");
+          const btn = document.getElementById("locationContinue");
+          btn.disabled = false;
+          btn.style.opacity = "1";
+        },
+        () => alert("Could not get location. Please allow location access."),
+        { enableHighAccuracy:true, timeout:10000, maximumAge:0 }
+      );
+    }
+
+    function refreshConfirm(){
+      const d = requestData[state.selectedRequest];
+      document.getElementById("confirmRequest").textContent = d.title;
+      document.getElementById("confirmCategory").textContent = d.category;
+      document.getElementById("peopleCount").textContent = String(state.people);
+      document.getElementById("confirmLocation").textContent =
+        state.latitude !== null ? `${state.latitude.toFixed(5)}, ${state.longitude.toFixed(5)}` : "Not shared yet";
+    }
+
+    function changePeople(delta){
+      state.people = Math.max(1, state.people + delta);
+      document.getElementById("peopleCount").textContent = String(state.people);
+    }
+
+async function submitOrder(){
+  state.note = document.getElementById("noteInput").value.trim();
+
+  const requestTypeMap = {
+    halal_food: "halal_food",
+    recovery_kit: "recovery_kit",
+    luggage_help: "luggage_help",
+    talk_local: "A casual walk to try your Japanese in real life"
+  };
+
+  if (!state.selectedRequest) {
+    alert("Please choose a request first.");
+    return;
+  }
+
+  if (state.latitude === null || state.longitude === null) {
+    alert("Please share your location first.");
+    return;
+  }
+
+  const googleMapsUrl = `https://www.google.com/maps?q=${state.latitude},${state.longitude}`;
+
+  const priceMap = {
+    halal_food: 3000,
+    recovery_kit: 2000,
+    luggage_help: 3000,
+    talk_local: 2000,
+  };
+
+  const payload = {
+    request_type: requestTypeMap[state.selectedRequest],
+    latitude: Number(state.latitude.toFixed(6)),
+    longitude: Number(state.longitude.toFixed(6)),
+    google_maps_url: googleMapsUrl,
+    area: "ueno",
+    estimated_price: 2000,
+    language: "en",
+    contact_method: "sms",
+    note: state.note,
+    people: state.people
+  };
+
+  try {
+    const res = await fetch("http://127.0.0.1:8000/api/requests/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json().catch(() => null);
+
+    if (!res.ok) {
+      console.error("Request failed:", data);
+      alert(`Request failed: ${JSON.stringify(data)}`);
+      return;
+    }
+
+    const d = requestData[state.selectedRequest];
+    document.getElementById("doneRequest").textContent = d.title;
+    document.getElementById("donePeople").textContent = String(state.people);
+
+    const wrap = document.getElementById("doneNoteWrap");
+    if (state.note) {
+      wrap.classList.remove("hidden");
+      document.getElementById("doneNote").textContent = state.note;
+    } else {
+      wrap.classList.add("hidden");
+      document.getElementById("doneNote").textContent = "";
+    }
+
+    console.log("Order created:", data);
+    go("screen-done");
+
+  } catch (err) {
+    console.error("Network error:", err);
+    alert("Could not send your request. Please try again.");
+  }
+}
+
+    function resetFlow(){
+      state.selectedRequest = null;
+      state.latitude = null;
+      state.longitude = null;
+      state.people = 1;
+      state.note = "";
+      document.getElementById("locationStatus").classList.remove("show");
+      const btn = document.getElementById("locationContinue");
+      btn.disabled = true;
+      btn.style.opacity = ".45";
+      document.getElementById("noteInput").value = "";
+      document.getElementById("peopleCount").textContent = "1";
+      go("screen-home");
+    }
+  </script>
+</body>
+</html>
