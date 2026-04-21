@@ -1012,7 +1012,7 @@
 
         if (!res.ok) {
           console.error("Send photo failed:", data);
-          alert("Could not send your photo.");
+          alert(`Could not send your photo: ${JSON.stringify(data)}`);
           return;
         }
 
