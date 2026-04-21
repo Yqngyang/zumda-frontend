@@ -6,13 +6,8 @@
   <meta name="theme-color" content="#08111f" />
   <title>zumda</title>
 
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  />
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-  ></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
     :root{
@@ -94,7 +89,7 @@
       text-align:left;
       box-shadow:0 10px 28px rgba(138,233,187,.10)
     }
-    .option:active,.primary:active,.ghost:active,.counter button:active,.icon-btn:active{transform:scale(.985)}
+    .option:active,.primary:active,.ghost:active,.counter button:active,.icon-btn:active,.quick-action:active,.chat-send:active{transform:scale(.985)}
     .badge{
       display:inline-block;padding:6px 10px;border-radius:999px;font-size:11px;color:rgba(7,17,31,.72);
       background:rgba(255,255,255,.35);border:1px solid rgba(255,255,255,.25);margin-bottom:10px
@@ -106,10 +101,10 @@
       width:44px;height:44px;border:none;cursor:pointer;border-radius:14px;background:rgba(255,255,255,.05);
       color:var(--text);border:1px solid var(--line);display:grid;place-items:center;font-size:18px;flex:0 0 auto
     }
-    .primary,.ghost{
+    .primary,.ghost,.chat-send{
       width:100%;border:none;cursor:pointer;border-radius:22px;padding:18px 16px;font-size:17px;font-weight:800;min-height:60px
     }
-    .primary{background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#07111f;box-shadow:0 10px 28px rgba(138,233,187,.08)}
+    .primary,.chat-send{background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#07111f;box-shadow:0 10px 28px rgba(138,233,187,.08)}
     .ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
     .actions{margin-top:auto;display:flex;flex-direction:column;gap:12px;padding-top:4px}
     .real-map{
@@ -139,10 +134,11 @@
       background:rgba(255,255,255,.06);color:var(--text);font-size:22px
     }
     .counter-value{min-width:76px;text-align:center;font-size:17px;font-weight:800}
-    textarea{
-      width:100%;min-height:92px;resize:none;border-radius:18px;border:1px solid var(--line);
+    textarea,input[type="text"]{
+      width:100%;min-height:56px;resize:none;border-radius:18px;border:1px solid var(--line);
       background:rgba(255,255,255,.04);color:var(--text);padding:14px;font:inherit;outline:none
     }
+    textarea{min-height:92px}
     .tiny-warning{font-size:12px;color:var(--danger);margin-top:6px}
     .done{
       width:92px;height:92px;border-radius:50%;margin:4px auto 10px;display:grid;place-items:center;
@@ -151,6 +147,93 @@
     .center{text-align:center}
     .hidden{display:none}
     .loading{opacity:.7;pointer-events:none}
+    .field-label{display:block;color:var(--muted);margin-bottom:8px;font-size:12px}
+    .chat-list{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      max-height:260px;
+      overflow:auto;
+      padding-right:4px;
+    }
+    .chat-bubble{
+      padding:12px 14px;
+      border-radius:18px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+    }
+    .chat-bubble strong{
+      display:block;
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:6px;
+      text-transform:capitalize;
+    }
+    .chat-bubble p{
+      color:var(--text);
+      font-size:14px;
+      line-height:1.5;
+      word-break:break-word;
+    }
+    .chat-bubble small{
+      display:block;
+      margin-top:8px;
+      color:var(--muted);
+      font-size:11px;
+    }
+    .chat-empty{
+      color:var(--muted);
+      font-size:13px;
+      text-align:center;
+      padding:10px 0;
+    }
+    .quick-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:12px;
+    }
+    .quick-action{
+      border:none;
+      cursor:pointer;
+      border-radius:18px;
+      padding:14px 12px;
+      min-height:54px;
+      background:rgba(255,255,255,.05);
+      color:var(--text);
+      border:1px solid var(--line);
+      font-weight:700;
+      font-size:13px;
+    }
+    .chat-compose{
+      display:flex;
+      gap:10px;
+      margin-top:12px;
+      align-items:stretch;
+    }
+    .chat-compose input{
+      min-height:56px;
+      flex:1;
+    }
+    .chat-send{
+      width:112px;
+      min-height:56px;
+      font-size:15px;
+      border-radius:18px;
+      padding:0 14px;
+    }
+    .chat-image-preview{
+      margin-top:10px;
+      width:100%;
+      border-radius:18px;
+      border:1px solid var(--line);
+      overflow:hidden;
+      display:none;
+    }
+    .chat-image-preview img{
+      width:100%;
+      display:block;
+    }
     @media (min-width:431px){
       .app{border:1px solid var(--line);border-radius:30px;height:min(920px,100dvh)}
       .card-shell{min-height:calc(min(920px,100dvh) - 36px)}
@@ -168,8 +251,8 @@
           <h1>What do you need right now?</h1>
 
           <div class="message">
-            <strong>Someone will come.</strong>
-            <p>Choose what feels closest to your situation.</p>
+            <strong>Someone will come to you.</strong>
+            <p>We’ll help you in real life, right where you are.</p>
           </div>
 
           <div class="section-title">Services</div>
@@ -178,19 +261,19 @@
               <div class="badge">Luggage</div>
               <div class="option-title">Luggage transfer</div>
               <div class="option-sub">
-                We’ll deliver your luggage to your next hotel<br>
+                Skip carrying your luggage<br>
                 ¥5000 / request<br>
-                Within the Asakusa, Ueno, and Akihabara area
+                Same-day delivery
               </div>
             </button>
 
             <button class="option" onclick="pick('talk_local')">
               <div class="badge">Talk</div>
-              <div class="option-title">Talk with a local</div>
+              <div class="option-title">Walk & talk in Tokyo</div>
               <div class="option-sub">
-                Try your Japanese in real life<br>
+                Practice Japanese with a local<br>
                 ¥4000 / 1 hour<br>
-                No pressure. Simple conversation.
+                Casual, like talking with a friend
               </div>
             </button>
           </div>
@@ -219,6 +302,10 @@
             <div class="summary-item">
               <small>Details</small>
               <strong id="detailConditions"></strong>
+            </div>
+            <div class="summary-item">
+              <small>Payment</small>
+              <strong id="detailPayment"></strong>
             </div>
           </div>
 
@@ -293,23 +380,28 @@
               <strong id="confirmDetails"></strong>
             </div>
             <div class="summary-item">
-              <small>ETA</small>
-              <strong id="confirmEta"></strong>
+              <small>Payment</small>
+              <strong id="confirmPayment"></strong>
             </div>
             <div class="summary-item">
               <small>How many people need help?</small>
               <div class="counter">
-                <button onclick="changePeople(-1)">−</button>
+                <button type="button" onclick="changePeople(-1)">−</button>
                 <div class="counter-value" id="peopleCount">1</div>
-                <button onclick="changePeople(1)">+</button>
+                <button type="button" onclick="changePeople(1)">+</button>
               </div>
             </div>
           </div>
 
           <div class="panel">
-            <small style="display:block;color:var(--muted);margin-bottom:8px;">Optional note</small>
+            <label class="field-label" for="nameInput">Your name</label>
+            <input id="nameInput" type="text" placeholder="e.g. John" />
+          </div>
+
+          <div class="panel">
+            <label class="field-label" for="noteInput">Optional note</label>
             <textarea id="noteInput" placeholder="Add anything helpful"></textarea>
-            <div class="tiny-warning">This request cannot be cancelled once submitted</div>
+            <div class="tiny-warning">Cash only. Please pay in person.</div>
           </div>
 
           <div class="actions">
@@ -323,8 +415,8 @@
           <div class="center">
             <div class="done">✓</div>
             <div class="eyebrow">Confirmed</div>
-            <h1>Someone is on the way</h1>
-            <p>A local is coming to help you</p>
+            <h1>Your helper is on the way</h1>
+            <p id="doneStatusText">You can chat here.</p>
           </div>
 
           <div class="panel" style="margin-top:8px;">
@@ -340,14 +432,40 @@
               <small>People</small>
               <strong id="donePeople"></strong>
             </div>
+            <div class="summary-item">
+              <small>Payment</small>
+              <strong id="donePayment"></strong>
+            </div>
             <div class="summary-item hidden" id="doneNoteWrap">
               <small>Optional note</small>
               <strong id="doneNote"></strong>
             </div>
           </div>
 
-          <div class="actions">
-            <button class="primary" onclick="resetFlow()">Back to home</button>
+          <div class="panel">
+            <small class="field-label">Chat</small>
+            <div class="chat-list" id="chatMessages">
+              <div class="chat-empty">No messages yet.</div>
+            </div>
+
+            <div class="quick-actions">
+              <button class="quick-action" type="button" onclick="sendCurrentLocationMessage()">Send current location</button>
+              <button class="quick-action" type="button" onclick="document.getElementById('chatPhotoInput').click()">Send a photo</button>
+            </div>
+
+            <input id="chatPhotoInput" type="file" accept="image/*" capture="environment" class="hidden" onchange="sendPhotoMessage(event)" />
+            <div class="chat-image-preview" id="chatImagePreview">
+              <img id="chatImagePreviewImg" alt="Preview" />
+            </div>
+
+            <div class="chat-compose">
+              <input id="chatInput" type="text" placeholder="Type a message" />
+              <button class="chat-send" type="button" onclick="sendTextMessage()">Send</button>
+            </div>
+          </div>
+
+          <div class="actions hidden" id="operatorActions">
+            <button class="primary" type="button" onclick="completeChat()">Complete request</button>
           </div>
         </div>
       </section>
@@ -356,26 +474,31 @@
   </div>
 
   <script>
+    const API_BASE_URL =
+      location.hostname === "localhost"
+        ? "http://127.0.0.1:8000"
+        : "https://zumda-backend-1088368601425.asia-northeast1.run.app";
+
     const requestData = {
       luggage_help: {
         title: "Luggage transfer",
-        description: "We’ll deliver your luggage to your next hotel",
+        description: "Skip carrying your luggage. We’ll deliver it to your next hotel while you enjoy your day.",
         category: "Service",
         requestType: "luggage_help",
         priceLabel: "¥5000 / request",
         priceValue: 5000,
-        detailLabel: "Within Asakusa, Ueno, Akihabara / Same-day / 1–2 luggage",
-        etaLabel: "~2–4 hours",
+        detailLabel: "Same-day delivery / Within Asakusa, Ueno, Akihabara / 1–2 luggage",
+        paymentLabel: "Cash only / Pay when we pick up your luggage",
       },
       talk_local: {
-        title: "Talk with a local",
-        description: "Try your Japanese in real life",
-        category: "Service",
+        title: "Walk & talk in Tokyo",
+        description: "Walk around the city with a local and practice your Japanese. Like talking with a local friend. This is not a tour — just a casual conversation.",
+        category: "Experience",
         requestType: "show_me_around",
         priceLabel: "¥4000 / 1 hour",
         priceValue: 4000,
-        detailLabel: "1 hour / Simple Japanese / Beginner friendly / No extension for now",
-        etaLabel: "~30 min",
+        detailLabel: "1 hour / For Japanese learners / Casual conversation / Daytime only",
+        paymentLabel: "Cash only / Pay after the session",
       }
     };
 
@@ -385,20 +508,33 @@
       longitude: null,
       people: 1,
       note: "",
+      name: "",
       isSubmitting: false,
       map: null,
       marker: null,
+      requestId: null,
+      chatToken: null,
+      chatRole: null,
+      chatStatus: null,
+      chatIntervalId: null,
     };
+
+    function getQueryParam(name) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name);
+    }
 
     function go(id){
       document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
       document.getElementById(id).classList.add("active");
 
       if (id === "screen-location" && state.map) {
-        setTimeout(() => {
-          state.map.invalidateSize();
-        }, 100);
+        setTimeout(() => state.map.invalidateSize(), 100);
       }
+    }
+
+    function isWithinHours(key){
+      return true;
     }
 
     function pick(key){
@@ -409,6 +545,7 @@
       document.getElementById("detailDescription").textContent = d.description;
       document.getElementById("detailPrice").textContent = d.priceLabel;
       document.getElementById("detailConditions").textContent = d.detailLabel;
+      document.getElementById("detailPayment").textContent = d.paymentLabel;
 
       go("screen-detail");
     }
@@ -416,25 +553,17 @@
     function renderMap(lat, lng){
       if (!state.map) {
         state.map = L.map("realMap").setView([lat, lng], 15);
-
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
           attribution: "&copy; OpenStreetMap contributors"
         }).addTo(state.map);
-
         state.marker = L.marker([lat, lng]).addTo(state.map);
       } else {
         state.map.setView([lat, lng], 15);
-
-        if (state.marker) {
-          state.marker.setLatLng([lat, lng]);
-        } else {
-          state.marker = L.marker([lat, lng]).addTo(state.map);
-        }
+        if (state.marker) state.marker.setLatLng([lat, lng]);
+        else state.marker = L.marker([lat, lng]).addTo(state.map);
       }
 
-      setTimeout(() => {
-        state.map.invalidateSize();
-      }, 100);
+      setTimeout(() => state.map.invalidateSize(), 100);
     }
 
     function shareLocation(){
@@ -477,7 +606,7 @@
       document.getElementById("confirmCategory").textContent = d.category;
       document.getElementById("confirmPrice").textContent = d.priceLabel;
       document.getElementById("confirmDetails").textContent = d.detailLabel;
-      document.getElementById("confirmEta").textContent = d.etaLabel;
+      document.getElementById("confirmPayment").textContent = d.paymentLabel;
       document.getElementById("peopleCount").textContent = String(state.people);
       document.getElementById("confirmLocation").textContent =
         state.latitude !== null
@@ -490,13 +619,141 @@
       document.getElementById("peopleCount").textContent = String(state.people);
     }
 
+    function setDoneFallbackSummary() {
+      if (!document.getElementById("doneRequest").textContent) {
+        document.getElementById("doneRequest").textContent = "Active request";
+      }
+      if (!document.getElementById("donePrice").textContent) {
+        document.getElementById("donePrice").textContent = "-";
+      }
+      if (!document.getElementById("donePeople").textContent) {
+        document.getElementById("donePeople").textContent = "-";
+      }
+      if (!document.getElementById("donePayment").textContent) {
+        document.getElementById("donePayment").textContent = "Cash";
+      }
+    }
+
+    function applyRoleUi() {
+      const doneStatusText = document.getElementById("doneStatusText");
+      const operatorActions = document.getElementById("operatorActions");
+
+      if (state.chatRole === "operator") {
+        doneStatusText.textContent = "You are chatting as operator.";
+        operatorActions.classList.remove("hidden");
+      } else {
+        doneStatusText.textContent = "You can chat here.";
+        operatorActions.classList.add("hidden");
+      }
+    }
+
+    async function loadChatRoom() {
+      if (!state.requestId || !state.chatToken) return;
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/requests/${state.requestId}/chat/`, {
+          headers: {
+            "X-Chat-Token": state.chatToken
+          }
+        });
+
+        const data = await res.json().catch(() => null);
+
+        if (!res.ok) {
+          console.error("Failed to load chat room:", data);
+          return;
+        }
+
+        state.chatRole = data.role;
+        state.chatStatus = data.status;
+        applyRoleUi();
+      } catch (err) {
+        console.error("Chat room load error:", err);
+      }
+    }
+
+    async function loadChatMessages(){
+      if (!state.requestId || !state.chatToken) return;
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/requests/${state.requestId}/chat/messages/`, {
+          headers: {
+            "X-Chat-Token": state.chatToken
+          }
+        });
+
+        const data = await res.json().catch(() => []);
+
+        if (!res.ok) {
+          console.error("Failed to load chat messages:", data);
+          return;
+        }
+
+        renderChatMessages(data);
+      } catch (err) {
+        console.error("Chat load error:", err);
+      }
+    }
+
+    function bootstrapChatFromUrl() {
+      const requestId = getQueryParam("request_id");
+      const token = getQueryParam("token");
+      const allowSessionResume = getQueryParam("resume") === "1";
+
+      if (requestId && token) {
+        state.requestId = requestId;
+        state.chatToken = token;
+
+        sessionStorage.setItem("zumda_request_id", requestId);
+        sessionStorage.setItem("zumda_chat_token", token);
+
+
+        setDoneFallbackSummary();
+        go("screen-done");
+        loadChatRoom();
+        loadChatMessages();
+        startChatPolling();
+        return true;
+      }
+
+      if (allowSessionResume) {
+        const savedRequestId = sessionStorage.getItem("zumda_request_id");
+        const savedToken = sessionStorage.getItem("zumda_chat_token");
+
+        if (savedRequestId && savedToken) {
+          state.requestId = savedRequestId;
+          state.chatToken = savedToken;
+
+          setDoneFallbackSummary();
+          go("screen-done");
+          loadChatRoom();
+          loadChatMessages();
+          startChatPolling();
+          return true;
+        }
+      }
+
+      return false;
+    }
+
     async function submitOrder(){
       if (state.isSubmitting) return;
 
       state.note = document.getElementById("noteInput").value.trim();
+      state.name = document.getElementById("nameInput").value.trim();
 
       if (!state.selectedRequest) {
         alert("Please choose a request first.");
+        return;
+      }
+
+      if (!isWithinHours(state.selectedRequest)) {
+        alert("This service is currently unavailable. Please try during operating hours.");
+        return;
+      }
+
+      if (!state.name) {
+        alert("Please enter your name.");
         return;
       }
 
@@ -512,13 +769,14 @@
 
       const payload = {
         request_type: d.requestType,
+        customer_name: state.name,
         latitude: lat,
         longitude: lng,
         google_maps_url: googleMapsUrl,
         area: "ueno",
         estimated_price: d.priceValue,
         language: "en",
-        contact_method: "sms",
+        contact_method: "cash",
         note: state.note,
         people: state.people
       };
@@ -530,7 +788,7 @@
         submitButton.textContent = "Sending...";
         submitButton.classList.add("loading");
 
-        const res = await fetch("http://127.0.0.1:8000/api/requests/", {
+        const res = await fetch(`${API_BASE_URL}/api/requests/`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -546,9 +804,16 @@
           return;
         }
 
+        state.requestId = data.id;
+        state.chatToken = data.chat_token;
+
+        sessionStorage.setItem("zumda_request_id", data.id);
+        sessionStorage.setItem("zumda_chat_token", data.chat_token);
+
         document.getElementById("doneRequest").textContent = d.title;
         document.getElementById("donePrice").textContent = d.priceLabel;
         document.getElementById("donePeople").textContent = String(state.people);
+        document.getElementById("donePayment").textContent = d.paymentLabel;
 
         const wrap = document.getElementById("doneNoteWrap");
         if (state.note) {
@@ -559,8 +824,10 @@
           document.getElementById("doneNote").textContent = "";
         }
 
-        console.log("Order created:", data);
         go("screen-done");
+        await loadChatRoom();
+        await loadChatMessages();
+        startChatPolling();
       } catch (err) {
         console.error("Network error:", err);
         alert("Could not send your request. Please try again.");
@@ -571,13 +838,239 @@
       }
     }
 
+    function formatTime(value){
+      try {
+        return new Date(value).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      } catch {
+        return "";
+      }
+    }
+
+    function escapeHtml(text){
+      return String(text)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function renderChatMessages(messages){
+      const container = document.getElementById("chatMessages");
+
+      if (!messages || messages.length === 0){
+        container.innerHTML = `<div class="chat-empty">No messages yet.</div>`;
+        return;
+      }
+
+      container.innerHTML = messages.map((msg) => {
+        let body = "";
+
+        if (msg.message_type === "photo" && msg.image_url) {
+          body = `<img src="${escapeHtml(msg.image_url)}" alt="Chat image" style="width:100%;border-radius:14px;display:block;margin-top:2px;" />`;
+        } else if (msg.message_type === "location") {
+          const label = msg.google_maps_url
+            ? `<a href="${escapeHtml(msg.google_maps_url)}" target="_blank" rel="noopener noreferrer" style="color:#8fd7ff;text-decoration:none;">Open shared location</a>`
+            : `${msg.latitude}, ${msg.longitude}`;
+          body = `<p>${label}</p>`;
+        } else {
+          body = `<p>${escapeHtml(msg.message || "")}</p>`;
+        }
+
+        return `
+          <div class="chat-bubble">
+            <strong>${escapeHtml(msg.sender || "system")}</strong>
+            ${body}
+            <small>${escapeHtml(formatTime(msg.created_at))}</small>
+          </div>
+        `;
+      }).join("");
+
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function startChatPolling(){
+      stopChatPolling();
+      state.chatIntervalId = setInterval(loadChatMessages, 5000);
+    }
+
+    function stopChatPolling(){
+      if (state.chatIntervalId){
+        clearInterval(state.chatIntervalId);
+        state.chatIntervalId = null;
+      }
+    }
+
+    async function sendTextMessage(){
+      const input = document.getElementById("chatInput");
+      const message = input.value.trim();
+
+      if (!state.requestId || !state.chatToken || !message) return;
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/requests/${state.requestId}/chat/messages/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Chat-Token": state.chatToken
+          },
+          body: JSON.stringify({
+            message_type: "text",
+            message
+          })
+        });
+
+        const data = await res.json().catch(() => null);
+
+        if (!res.ok) {
+          console.error("Send text failed:", data);
+          alert("Could not send your message.");
+          return;
+        }
+
+        input.value = "";
+        await loadChatMessages();
+      } catch (err) {
+        console.error("Send text error:", err);
+        alert("Could not send your message.");
+      }
+    }
+
+    async function sendCurrentLocationMessage(){
+      if (!state.requestId || !state.chatToken) return;
+
+      if (!navigator.geolocation) {
+        alert("Geolocation is not supported on this device.");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const lat = Number(position.coords.latitude.toFixed(6));
+          const lng = Number(position.coords.longitude.toFixed(6));
+          const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+
+          try {
+            const res = await fetch(`${API_BASE_URL}/api/requests/${state.requestId}/chat/messages/`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-Chat-Token": state.chatToken
+              },
+              body: JSON.stringify({
+                message_type: "location",
+                latitude: lat,
+                longitude: lng,
+                google_maps_url: googleMapsUrl
+              })
+            });
+
+            const data = await res.json().catch(() => null);
+
+            if (!res.ok) {
+              console.error("Send location failed:", data);
+              alert("Could not send your location.");
+              return;
+            }
+
+            await loadChatMessages();
+          } catch (err) {
+            console.error("Send location error:", err);
+            alert("Could not send your location.");
+          }
+        },
+        () => alert("Could not get location. Please allow location access."),
+        { enableHighAccuracy:true, timeout:10000, maximumAge:0 }
+      );
+    }
+
+    async function sendPhotoMessage(event){
+      if (!state.requestId || !state.chatToken) return;
+
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const previewWrap = document.getElementById("chatImagePreview");
+      const previewImg = document.getElementById("chatImagePreviewImg");
+      previewImg.src = URL.createObjectURL(file);
+      previewWrap.style.display = "block";
+
+      const formData = new FormData();
+      formData.append("message_type", "photo");
+      formData.append("image", file);
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/requests/${state.requestId}/chat/messages/`, {
+          method: "POST",
+          headers: {
+            "X-Chat-Token": state.chatToken
+          },
+          body: formData
+        });
+
+        const data = await res.json().catch(() => null);
+
+        if (!res.ok) {
+          console.error("Send photo failed:", data);
+          alert("Could not send your photo.");
+          return;
+        }
+
+        event.target.value = "";
+        previewWrap.style.display = "none";
+        previewImg.src = "";
+        await loadChatMessages();
+      } catch (err) {
+        console.error("Send photo error:", err);
+        alert("Could not send your photo.");
+      }
+    }
+
+    async function completeChat() {
+      if (!state.requestId || !state.chatToken) return;
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/requests/${state.requestId}/chat/complete/`, {
+          method: "POST",
+          headers: {
+            "X-Chat-Token": state.chatToken
+          }
+        });
+
+        const data = await res.json().catch(() => null);
+
+        if (!res.ok) {
+          console.error("Complete chat failed:", data);
+          alert("Could not complete the request.");
+          return;
+        }
+
+        await loadChatRoom();
+        await loadChatMessages();
+        alert("Request completed.");
+      } catch (err) {
+        console.error("Complete chat error:", err);
+        alert("Could not complete the request.");
+      }
+    }
+
     function resetFlow(){
+      stopChatPolling();
+
+      sessionStorage.removeItem("zumda_request_id");
+      sessionStorage.removeItem("zumda_chat_token");
+
       state.selectedRequest = null;
       state.latitude = null;
       state.longitude = null;
       state.people = 1;
       state.note = "";
+      state.name = "";
       state.isSubmitting = false;
+      state.requestId = null;
+      state.chatToken = null;
+      state.chatRole = null;
+      state.chatStatus = null;
 
       if (state.map) {
         state.map.remove();
@@ -602,21 +1095,35 @@
       submitButton.classList.remove("loading");
 
       document.getElementById("noteInput").value = "";
+      document.getElementById("nameInput").value = "";
+      document.getElementById("chatInput").value = "";
       document.getElementById("peopleCount").textContent = "1";
       document.getElementById("confirmRequest").textContent = "";
       document.getElementById("confirmCategory").textContent = "";
       document.getElementById("confirmLocation").textContent = "Not shared yet";
       document.getElementById("confirmPrice").textContent = "";
       document.getElementById("confirmDetails").textContent = "";
-      document.getElementById("confirmEta").textContent = "";
+      document.getElementById("confirmPayment").textContent = "";
       document.getElementById("doneRequest").textContent = "";
       document.getElementById("donePrice").textContent = "";
       document.getElementById("donePeople").textContent = "";
+      document.getElementById("donePayment").textContent = "";
       document.getElementById("doneNote").textContent = "";
       document.getElementById("doneNoteWrap").classList.add("hidden");
+      document.getElementById("doneStatusText").textContent = "You can chat here.";
+      document.getElementById("operatorActions").classList.add("hidden");
+      document.getElementById("chatMessages").innerHTML = `<div class="chat-empty">No messages yet.</div>`;
+      document.getElementById("chatImagePreview").style.display = "none";
+      document.getElementById("chatImagePreviewImg").src = "";
 
       go("screen-home");
     }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      bootstrapChatFromUrl();
+    });
+
+    window.addEventListener("beforeunload", stopChatPolling);
   </script>
 </body>
 </html>
